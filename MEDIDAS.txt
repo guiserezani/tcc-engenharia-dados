@@ -1,0 +1,56 @@
+--- MEDIDAS CRIADAS ---
+
+Distribuição por IMC = COUNT(silver_datalake[IMC])
+
+--------------------------------------------------------------------------------------
+
+Média da Duração de Sono = AVERAGE(silver_datalake[Duracao_Sono])
+
+--------------------------------------------------------------------------------------
+
+Média da Qualidade do Sono = AVERAGE(silver_datalake[Qualidade_Sono])
+
+--------------------------------------------------------------------------------------
+
+Média do Nivel de Atividade Fisica = AVERAGE(silver_datalake[Nivel_Atividade_Fisica])
+
+--------------------------------------------------------------------------------------
+
+Média do Nivel de Estresse = AVERAGE(silver_datalake[Nivel_Estresse])
+
+--------------------------------------------------------------------------------------
+
+Média Frequência Cardíaca = AVERAGE(silver_datalake[Frequencia_Cardiaca])
+
+--------------------------------------------------------------------------------------
+
+Percentual de Transtornos do Sono = 
+VAR transtorno = CALCULATE(COUNT(silver_datalake[Transtorno_Sono]), silver_datalake[Transtorno_Sono] <> "NENHUM")
+VAR pessoas = COUNT(silver_datalake[ID])
+RETURN transtorno / pessoas
+
+--------------------------------------------------------------------------------------
+
+Quantidade Pessoas = COUNTROWS(silver_datalake)
+
+--------------------------------------------------------------------------------------
+
+Texto Dinâmico Nível de Estresse = 
+SWITCH(
+    SELECTEDVALUE('Nivel Estresse'[Nivel Estresse Pedido]),
+    0, "Nível Estresse x Duração do Sono",
+    1, "Nível Estresse x Qualidade do Sono"
+)
+
+
+--------------------------------------------------------------------------------------
+
+Texto Dinâmico Qualidade do Sono = 
+SWITCH(
+    SELECTEDVALUE('Qualidade do Sono'[Qualidade do Sono Pedido]),
+    0, "Qualidade do Sono por Ocupação",
+    1, "Qualidade do Sono por Atividade Física",
+    "Qualidade do Sono"
+)
+
+--------------------------------------------------------------------------------------

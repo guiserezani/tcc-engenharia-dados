@@ -1,0 +1,54 @@
+--- COLUNAS CALCULADAS ---
+
+FaixaEtaria = SWITCH(
+    TRUE(),
+    'silver_datalake'[IDADE] >= 18 && 'silver_datalake'[IDADE] <= 24, "18-24",
+    'silver_datalake'[IDADE] >= 25 && 'silver_datalake'[IDADE] <= 34, "25-34",
+    'silver_datalake'[IDADE] >= 35 && 'silver_datalake'[IDADE] <= 44, "35-44",
+    'silver_datalake'[IDADE] >= 45 && 'silver_datalake'[IDADE] <= 54, "45-54",
+    'silver_datalake'[IDADE] >= 55 && 'silver_datalake'[IDADE] <= 64, "55-64",
+    'silver_datalake'[IDADE] >= 65 && 'silver_datalake'[IDADE] <= 74, "65-74",
+    'silver_datalake'[IDADE] >= 75 && 'silver_datalake'[IDADE] <= 84, "75-84",
+    'silver_datalake'[IDADE] >= 85 && 'silver_datalake'[IDADE] <= 90, "85-90",
+    "Outros"
+)
+
+--------------------------------------------------------------------------------------
+
+Faixa_Nivel_Atividade_Fisica = 
+SWITCH(
+    TRUE(),
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 10, "Nenhuma atividade",
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 30, "Leve",
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 60, "Moderada",
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 80, "Vigorosa",
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 90, "Forte",
+    'silver_datalake'[Nivel_Atividade_Fisica] <= 100, "Intensa",
+    "Acima de 100"
+)
+
+--------------------------------------------------------------------------------------
+
+Faixa_Estresse = 
+SWITCH(
+    TRUE(),
+    'silver_datalake'[Nivel_Estresse] <= 2, "Sem Estresse",
+    'silver_datalake'[Nivel_Estresse] <= 4, "Levemente Estressado",
+    'silver_datalake'[Nivel_Estresse] <= 6, "Moderadamente Estressado",
+    'silver_datalake'[Nivel_Estresse] <= 8, "Altamente Estressado",
+    'silver_datalake'[Nivel_Estresse] <= 10, "Extremamente Estressado",
+    "Outro"
+)
+
+--------------------------------------------------------------------------------------
+
+Classificacao_Estresse = 
+SWITCH(
+    TRUE(),
+    'silver_datalake'[Nivel_Estresse] <= 2, 1,
+    'silver_datalake'[Nivel_Estresse] <= 4, 2,
+    'silver_datalake'[Nivel_Estresse] <= 6, 3,
+    'silver_datalake'[Nivel_Estresse] <= 8, 4,
+    'silver_datalake'[Nivel_Estresse] <= 10, 5,
+    0
+)

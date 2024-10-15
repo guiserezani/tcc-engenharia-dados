@@ -1,0 +1,15 @@
+--- PARÂMETROS CRIADOS ---
+
+Nivel Estresse = {
+    ("Duração Sono", NAMEOF('Medidas'[Média da Duração de Sono]), 0),
+    ("Qualidade Sono", NAMEOF('Medidas'[Média da Qualidade do Sono]), 1)
+}
+
+--------------------------------------------------------------------------------------
+
+Qualidade do Sono = {
+    ("Ocupação", NAMEOF('silver_datalake'[Ocupacao]), 0),
+    ("Atividade Física", NAMEOF('silver_datalake'[Faixa_Nivel_Atividade_Fisica]), 1)
+}
+
+--------------------------------------------------------------------------------------
