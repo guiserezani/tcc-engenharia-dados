@@ -1,0 +1,106 @@
+df = spark.sql("SELECT * FROM LakeHouse_TCC.camada_bronze LIMIT 1000")
+display(df)
+
+from pyspark.sql.functions import col
+
+# 1. Carregar os dados da Camada Bronze
+bronze_table_path = "Tables/camada_bronze"
+df_bronze = spark.read.format("delta").load(bronze_table_path)
+
+# 2. Altera os tipos de dados na Camada Silver
+df_silver = df_bronze \
+    .withColumn("Age", col("Age").cast("int")) \
+    .withColumn("Sleep_Duration", col("Sleep_Duration").cast("float")) \
+    .withColumn("Quality_of_Sleep", col("Quality_of_Sleep").cast("int")) \
+    .withColumn("Physical_Activity_Level", col("Physical_Activity_Level").cast("int")) \
+    .withColumn("Stress_Level", col("Stress_Level").cast("int")) \
+    .withColumn("Heart_Rate", col("Heart_Rate").cast("int")) \
+    .withColumn("Daily_Steps", col("Daily_Steps").cast("int"))
+
+# Conferindo se o dataframe silver (df_silver)foi criado corretamente.
+df_silver.show()
+
+# 3. Renomeando as colunas em português
+df_silver = df_silver \
+    .withColumnRenamed("Person_ID", "ID") \
+    .withColumnRenamed("Gender", "Genero") \
+    .withColumnRenamed("Age", "Idade") \
+    .withColumnRenamed("Occupation", "Ocupacao") \
+    .withColumnRenamed("Sleep_Duration", "Duracao_Sono") \
+    .withColumnRenamed("Quality_of_Sleep", "Qualidade_Sono") \
+    .withColumnRenamed("Physical_Activity_Level", "Nivel_Atividade_Fisica") \
+    .withColumnRenamed("Stress_Level", "Nivel_Estresse") \
+    .withColumnRenamed("BMI_Category", "IMC") \
+    .withColumnRenamed("Blood_Pressure", "Pressao_Arterial") \
+    .withColumnRenamed("Heart_Rate", "Frequencia_Cardiaca") \
+    .withColumnRenamed("Daily_Steps", "Passos_Diarios") \
+    .withColumnRenamed("Sleep_Disorder", "Transtorno_Sono")
+
+# Verificando se df_silver foi atualizado corretamente
+df_silver.printSchema()
+
+# Selecionar apenas as colunas do tipo string
+df = df_silver
+string_columns = [col_name for col_name, dtype in df.dtypes if dtype == 'string']
+
+# Para cada coluna string, mostrar os valores distintos
+for col_name in string_columns:
+    print(f"Valores distintos da coluna {col_name}:")
+    df.select(col_name).distinct().show(truncate=False)
+
+from pyspark.sql.functions import when, col
+
+# Traduzir a coluna Gênero
+df_traducao = df.withColumn(
+    "Genero", when(col("Genero") == "Female", "Feminino")
+                    .when(col("Genero") == "Male", "Masculino")
+                    .otherwise(col("Genero"))
+)
+
+# Traduzir a coluna Ocupação
+df_traducao = df_traducao.withColumn(
+    "Ocupacao", when(col("Ocupacao") == "Scientist", "Cientista")
+                        .when(col("Ocupacao") == "Nurse", "Enfermeira(o)")
+                        .when(col("Ocupacao") == "Salesperson", "Vendedor(a)")
+                        .when(col("Ocupacao") == "Lawyer", "Advogado(a)")
+                        .when(col("Ocupacao") == "Teacher", "Professor(a)")
+                        .when(col("Ocupacao") == "Sales Representative", "Representante de Vendas")
+                        .when(col("Ocupacao") == "Doctor", "Médico(a)")
+                        .when(col("Ocupacao") == "Engineer", "Engenheiro(a)")
+                        .when(col("Ocupacao") == "Accountant", "Contador(a)")
+                        .when(col("Ocupacao") == "Manager", "Gerente")
+                        .when(col("Ocupacao") == "Software Engineer", "Engenheiro(a) de Software")
+                        .otherwise(col("Ocupacao"))
+)
+
+# Traduzir a coluna IMC
+df_traducao = df_traducao.withColumn(
+    "IMC", when(col("IMC") == "Normal Weight", "Peso Normal")
+                .when(col("IMC") == "Overweight", "Sobrepeso")
+                .when(col("IMC") == "Obese", "Obeso(a)")
+                .when(col("IMC") == "Normal", "Normal")
+                .otherwise(col("IMC"))
+)
+
+# Traduzir a coluna Transtorno_Sono
+df_traducao = df_traducao.withColumn(
+    "Transtorno_Sono", when(col("Transtorno_Sono") == "None", "Nenhum")
+                            .when(col("Transtorno_Sono") == "Sleep Apnea", "Apneia do Sono")
+                            .when(col("Transtorno_Sono") == "Insomnia", "Insônia")
+                            .otherwise(col("Transtorno_Sono"))
+)
+
+# Mostrar as primeiras linhas do DataFrame traduzido para ver os resultados
+df_traducao.show()
+
+# Definir o caminho para a Camada Silver
+silver_table_path = "Tables/silver_datalake"
+
+# Salvar o DataFrame traduzido na Camada Silver, sobrescrevendo os dados existentes e permitindo alteração do esquema
+df_traducao.write.format("delta").mode("overwrite").option("overwriteSchema", "true").save(silver_table_path)
+
+# Carregar os dados da tabela Silver para verificar as mudanças
+df_verificado = spark.read.format("delta").load(silver_table_path)
+
+# Exibir as primeiras linhas do DataFrame ajustado.
+df_verificado.show()
